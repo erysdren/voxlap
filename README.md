@@ -6,7 +6,8 @@ source code, several tools created by Tom Dobrowolski, and `sdlmain.c` created
 by [Jonathon Fowler](http://jonof.id.au/).
 
 please note also that this is my playground for porting this engine and toolset
-to modern platforms.
+to modern platforms. for an unmodified copy of everything, please refer to the
+[archive](https://github.com/erysdren/voxlap/tree/archive) branch.
 
 ## docs
 
