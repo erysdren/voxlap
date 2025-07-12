@@ -5,6 +5,9 @@ tools. also includes the [SLAB6](https://advsys.net/ken/download.htm#slab6)
 source code, several tools created by Tom Dobrowolski, and `sdlmain.c` created
 by [Jonathon Fowler](http://jonof.id.au/).
 
+please note also that this is my playground for porting this engine and toolset
+to modern platforms.
+
 ## docs
 
 - [CAVE engine by Ken Silverman](./doc/cave.txt) (1994-04-21)
