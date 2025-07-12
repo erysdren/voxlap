@@ -251,14 +251,14 @@ static long keyrepeat (long scancode)
 	return(i);
 }
 
-//⁄ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒø
-//≥ Rounding: D11-10:  ≥ Precision: D9-8:   ≥
-//√ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ≈ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¥
-//≥ 00 = near/even (0) ≥ 00 = 24-bit    (0) ≥
-//≥ 01 = -inf      (4) ≥ 01 = reserved  (1) ≥
-//≥ 10 = +inf      (8) ≥ 10 = 53-bit    (2) ≥
-//≥ 11 = 0         (c) ≥ 11 = 64-bit    (3) ≥
-//¿ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒŸ
+//‚îå‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚î¨‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îê
+//‚îÇ Rounding: D11-10:  ‚îÇ Precision: D9-8:   ‚îÇ
+//‚îú‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îº‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚î§
+//‚îÇ 00 = near/even (0) ‚îÇ 00 = 24-bit    (0) ‚îÇ
+//‚îÇ 01 = -inf      (4) ‚îÇ 01 = reserved  (1) ‚îÇ
+//‚îÇ 10 = +inf      (8) ‚îÇ 10 = 53-bit    (2) ‚îÇ
+//‚îÇ 11 = 0         (c) ‚îÇ 11 = 64-bit    (3) ‚îÇ
+//‚îî‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚î¥‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îò
 
 long fpumode;
 long fstcw ();
@@ -1188,7 +1188,7 @@ void drawcube (float rx, float ry, float rz, char col, char visside)
 		t = yy[i^1]-yy[j^1]; botp = (i^1)+(((j^1)-(i^1))&((*(long *)&t)>>31));
 
 			//Note: .5 should be added to all ftol's with normal rounding mode.
-			//Since I'm rounding using "round to Ï" mode, this code is optimized out!
+			//Since I'm rounding using "round to ‚àû" mode, this code is optimized out!
 
 		p = botp;
 		ftol(yy[p],&sy1); if (sy1 > gdd.y) sy1 = gdd.y;
@@ -1232,7 +1232,7 @@ void rendercube ()
 	float f, bakhz;
 	long i, j, k, x, y, z, inz, splitx, splity, splity2, ofpumode;
 
-	ofpumode = fstcw(); fldcw((ofpumode&~0xf00)|0x800); //24 bit, round to Ï
+	ofpumode = fstcw(); fldcw((ofpumode&~0xf00)|0x800); //24 bit, round to ‚àû
 
 		//Ugly hack to avoid hz multiplies!
 	oirig = irig; irig.x *= hz; irig.y *= hz; irig.z *= hz;
@@ -1914,7 +1914,7 @@ void drawsphere (float cx, float cy, float cz, char col)
 	e = -cy*f - hy*g; e += e;
 	f = f*f + g*hds;
 
-		//isq = (b*b-4*a*c)y˝ + (2*b*d-4*a*e)y + (d*d-4*a*f) = 0
+		//isq = (b*b-4*a*c)y¬≤ + (2*b*d-4*a*e)y + (d*d-4*a*f) = 0
 	Za = b*b - a*c*4; if (!Za) return;
 	Zb = b*d*2 - a*e*4;
 	Zc = d*d - a*f*4;
@@ -1929,7 +1929,7 @@ void drawsphere (float cx, float cy, float cz, char col)
 	isqi = (h+h+Za+Zb)*rr2a; isqii = Za*rr2a*2;
 
 	p = gdd.f+ylookup[sy1]; sy2 = gdd.f+ylookup[sy2]; dlcol = lcol[col];
-	while (1)  //(a)x˝ + (b*y+d)x + (c*y*y+e*y+f) = 0
+	while (1)  //(a)x¬≤ + (b*y+d)x + (c*y*y+e*y+f) = 0
 	{
 		fsqrtasm(&isq,&t);
 
@@ -2427,7 +2427,7 @@ void rendercubehack (long x0, long y0, long z0, long x1, long y1, long z1)
 
 	for(x=0;x<3;x++) { oslcol[x] = slcol[x][col]; slcol[x][col] = lcol[col]; }
 
-	ofpumode = fstcw(); fldcw((ofpumode&~0xf00)|0x800); //24 bit, round to Ï
+	ofpumode = fstcw(); fldcw((ofpumode&~0xf00)|0x800); //24 bit, round to ‚àû
 
 	vptr = voxdata;
 	for(x=0;x<xsiz;x++)
@@ -6731,17 +6731,17 @@ void doframe ()
 	if ((searchmode) && ((inawindow < 0) || (wz[inawindow] > 0)) && (!mouseoutstat))
 	{
 #if 1
-			//   ∞∞              ∞∞
-			// ∞∞€€∞∞          ∞∞€€∞∞
-			//   ∞∞€€∞∞      ∞∞€€∞∞
-			//     ∞∞€€∞∞  ∞∞€€∞∞
-			//       ∞∞      ∞∞
+			//   ‚ñë‚ñë              ‚ñë‚ñë
+			// ‚ñë‚ñë‚ñà‚ñà‚ñë‚ñë          ‚ñë‚ñë‚ñà‚ñà‚ñë‚ñë
+			//   ‚ñë‚ñë‚ñà‚ñà‚ñë‚ñë      ‚ñë‚ñë‚ñà‚ñà‚ñë‚ñë
+			//     ‚ñë‚ñë‚ñà‚ñà‚ñë‚ñë  ‚ñë‚ñë‚ñà‚ñà‚ñë‚ñë
+			//       ‚ñë‚ñë      ‚ñë‚ñë
 			//
-			//       ∞∞      ∞∞
-			//     ∞∞€€∞∞  ∞∞€€∞∞
-			//   ∞∞€€∞∞      ∞∞€€∞∞
-			// ∞∞€€∞∞          ∞∞€€∞∞
-			//   ∞∞              ∞∞
+			//       ‚ñë‚ñë      ‚ñë‚ñë
+			//     ‚ñë‚ñë‚ñà‚ñà‚ñë‚ñë  ‚ñë‚ñë‚ñà‚ñà‚ñë‚ñë
+			//   ‚ñë‚ñë‚ñà‚ñà‚ñë‚ñë      ‚ñë‚ñë‚ñà‚ñà‚ñë‚ñë
+			// ‚ñë‚ñë‚ñà‚ñà‚ñë‚ñë          ‚ñë‚ñë‚ñà‚ñà‚ñë‚ñë
+			//   ‚ñë‚ñë              ‚ñë‚ñë
 		for(j=4;j;j--)
 		{
 			x = searchx+((j&1)<<2)-2; y = searchy+(j&2)-1;

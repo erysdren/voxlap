@@ -211,7 +211,7 @@ P               Paints selected .PNG file onto the voxel map, projected in
 
 KP6             For .KVX/.VOX: Rotate object (Switches between x,y,z axis)
 KP7,KP8,KP9     For .KVX/.VOX: Flip/Mirror axis (I don't remember which key
-                   does what, but I know all 48 possible 90ø cases are in
+                   does what, but I know all 48 possible 90Â° cases are in
                    there. Keep pressing on the keys until it looks right.)
 
 KP7,KP8         For .KV6: Rotate object left/right

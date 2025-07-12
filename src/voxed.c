@@ -1473,8 +1473,8 @@ void gridalignline (point3d *p, long daxmov, long gmode)
 		//   Problem: Finding closest point between 2 lines
 		//Treat the line as a cylinder and minimize r
 		//Cylinder equation:
-		//   (x-cx)ı+(y-cy)ı+(z-cz)ı =
-		//   ((x-cx)vx+(y-cx)vy+(z-cz)vz)ı+rı
+		//   (x-cx)Â²+(y-cy)Â²+(z-cz)Â² =
+		//   ((x-cx)vx+(y-cx)vy+(z-cz)vz)Â²+rÂ²
 		//
 		//Given: (x,y)      -> curs[editcurs].x, curs[editcurs].y
 		//       (cx,cy,cz) -> ipos.x,ipos.y,ipos.z
@@ -1484,7 +1484,7 @@ void gridalignline (point3d *p, long daxmov, long gmode)
 		//Minimize: (r)
 		//
 		//Solution:
-		//   Step 1: Re-order terms to get r = sqrt(Azı + Bz + C)
+		//   Step 1: Re-order terms to get r = sqrt(AzÂ² + Bz + C)
 		//   Step 2: Take derivative of r (can ignore sqrt)
 	if (daxmov&1)
 	{
@@ -1914,9 +1914,9 @@ void drawarrows (long xx, long yy, long zz, double iforx, double ifory, long col
 	long x, y, j, k;
 
 		//   V0V1V2V3
-		//H0   ÚÄ¿        (-x,-y)
-		//H1 ÚÄÎÄÅÄ¿ (-y,x) ÄÅÄ (y,-x)
-		//H2 ÀÄÁÄÁÄÙ       (x,y)
+		//H0   â”Œâ”€â”        (-x,-y)
+		//H1 â”Œâ”€â•¬â”€â”¼â”€â” (-y,x) â”€â”¼â”€ (y,-x)
+		//H2 â””â”€â”´â”€â”´â”€â”˜       (x,y)
 
 	  //KP2
 	if (fabs(iforx) < fabs(ifory)) { x = 0; y = (((ifory < 0)-1)|1); }
@@ -2067,15 +2067,15 @@ void notepaddraw ()
 	else
 	{
 		//     Insert:    Overwrite:
-		//   ÛÛÛÛ  ÛÛÛÛ
-		//       ÛÛ         ÛÛÛÛÛ
-		//       ÛÛ       ÛÛ     ÛÛ
-		//       ÛÛ       ÛÛ     ÛÛ
-		//       []       []     ÛÛ
-		//       ÛÛ       ÛÛ     ÛÛ
-		//       ÛÛ       ÛÛ     ÛÛ
-		//       ÛÛ         ÛÛÛÛÛ
-		//   ÛÛÛÛ  ÛÛÛÛ
+		//   â–ˆâ–ˆâ–ˆâ–ˆ  â–ˆâ–ˆâ–ˆâ–ˆ
+		//       â–ˆâ–ˆ         â–ˆâ–ˆâ–ˆâ–ˆâ–ˆ
+		//       â–ˆâ–ˆ       â–ˆâ–ˆ     â–ˆâ–ˆ
+		//       â–ˆâ–ˆ       â–ˆâ–ˆ     â–ˆâ–ˆ
+		//       []       []     â–ˆâ–ˆ
+		//       â–ˆâ–ˆ       â–ˆâ–ˆ     â–ˆâ–ˆ
+		//       â–ˆâ–ˆ       â–ˆâ–ˆ     â–ˆâ–ˆ
+		//       â–ˆâ–ˆ         â–ˆâ–ˆâ–ˆâ–ˆâ–ˆ
+		//   â–ˆâ–ˆâ–ˆâ–ˆ  â–ˆâ–ˆâ–ˆâ–ˆ
 
 		for(i=-2;i<=2;i++)
 		{
@@ -4376,7 +4376,7 @@ void doframe ()
 				dy = (float)curs[i].y-ipos.y;
 				dz = (float)curs[i].z-ipos.z;
 				t = dx*ifor.x + dy*ifor.y + dz*ifor.z;
-					//Dot product equation squared (tı>³dx,dy,dy³ı*cosı(ang))
+					//Dot product equation squared (tÂ²>â”‚dx,dy,dyâ”‚Â²*cosÂ²(ang))
 				if ((t < SCISSORDIST) || (t*t < (dx*dx+dy*dy+dz*dz)*0.995)) continue;
 				lastcurs = i;
 				editcurs = i; //cursaxmov = 4;

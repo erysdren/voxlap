@@ -828,85 +828,85 @@ _drawboundcubesse:
 
 	lea ecx, _ptfaces16[ecx*8]
 
-	movzx ebx, byte ptr [ecx+1] ;                           ›
-	movzx edi, byte ptr [ecx+2] ;                           ›
-	movaps xmm0, _caddasm[ebx]  ;xmm0: [ z0, z0, y0, x0]    €
-	addps xmm0, xmm7            ;                           €€±
-	movaps xmm1, _caddasm[edi]  ;xmm1: [ z1, z1, y1, x1]    €
-	addps xmm1, xmm7            ;                           €€±
-	movaps xmm6, xmm0           ;xmm6: [ z0, z0, y0, x0]    €
-	movhlps xmm0, xmm1          ;xmm0: [ z0, z0, z1, z1]    €
-	movlhps xmm1, xmm6          ;xmm1: [ y0, x0, y1, x1]    €
-	rcpps xmm0, xmm0            ;xmm6: [/z0,/z0,/z1,/z1]    €€
-	mulps xmm0, xmm1            ;xmm0: [sy0,sx0,sy1,sx1]    €€±±
+	movzx ebx, byte ptr [ecx+1] ;                           ‚ñå
+	movzx edi, byte ptr [ecx+2] ;                           ‚ñå
+	movaps xmm0, _caddasm[ebx]  ;xmm0: [ z0, z0, y0, x0]    ‚ñà
+	addps xmm0, xmm7            ;                           ‚ñà‚ñà‚ñí
+	movaps xmm1, _caddasm[edi]  ;xmm1: [ z1, z1, y1, x1]    ‚ñà
+	addps xmm1, xmm7            ;                           ‚ñà‚ñà‚ñí
+	movaps xmm6, xmm0           ;xmm6: [ z0, z0, y0, x0]    ‚ñà
+	movhlps xmm0, xmm1          ;xmm0: [ z0, z0, z1, z1]    ‚ñà
+	movlhps xmm1, xmm6          ;xmm1: [ y0, x0, y1, x1]    ‚ñà
+	rcpps xmm0, xmm0            ;xmm6: [/z0,/z0,/z1,/z1]    ‚ñà‚ñà
+	mulps xmm0, xmm1            ;xmm0: [sy0,sx0,sy1,sx1]    ‚ñà‚ñà‚ñí‚ñí
 
-	movzx ebx, byte ptr [ecx+3] ;                           ›
-	movzx edi, byte ptr [ecx+4] ;                           ›
-	movaps xmm2, _caddasm[ebx]  ;xmm2: [ z2, z2, y2, x2]    €
-	addps xmm2, xmm7            ;                           €€±
-	movaps xmm3, _caddasm[edi]  ;xmm3: [ z3, z3, y3, x3]    €
-	addps xmm3, xmm7            ;                           €€±
-	movaps xmm6, xmm2           ;xmm6: [ z2, z2, y2, x2]    €
-	movhlps xmm2, xmm3          ;xmm2: [ z2, z2, z3, z3]    €
-	movlhps xmm3, xmm6          ;xmm3: [ y2, x2, y3, x3]    €
-	rcpps xmm2, xmm2            ;xmm6: [/z2,/z2,/z3,/z3]    €€
-	mulps xmm2, xmm3            ;xmm2: [sy2,sx2,sy3,sx3]    €€±±
+	movzx ebx, byte ptr [ecx+3] ;                           ‚ñå
+	movzx edi, byte ptr [ecx+4] ;                           ‚ñå
+	movaps xmm2, _caddasm[ebx]  ;xmm2: [ z2, z2, y2, x2]    ‚ñà
+	addps xmm2, xmm7            ;                           ‚ñà‚ñà‚ñí
+	movaps xmm3, _caddasm[edi]  ;xmm3: [ z3, z3, y3, x3]    ‚ñà
+	addps xmm3, xmm7            ;                           ‚ñà‚ñà‚ñí
+	movaps xmm6, xmm2           ;xmm6: [ z2, z2, y2, x2]    ‚ñà
+	movhlps xmm2, xmm3          ;xmm2: [ z2, z2, z3, z3]    ‚ñà
+	movlhps xmm3, xmm6          ;xmm3: [ y2, x2, y3, x3]    ‚ñà
+	rcpps xmm2, xmm2            ;xmm6: [/z2,/z2,/z3,/z3]    ‚ñà‚ñà
+	mulps xmm2, xmm3            ;xmm2: [sy2,sx2,sy3,sx3]    ‚ñà‚ñà‚ñí‚ñí
 
-	cvttps2pi mm0, xmm0         ;                           €
-	movhlps xmm0, xmm0          ;                           €
-	cvttps2pi mm2, xmm2         ;                           €
-	cvttps2pi mm1, xmm0         ;                           €
-	movhlps xmm2, xmm2          ;                           €
-	packssdw mm0, mm1           ;                           ›
-	movq mm1, mm0               ;                           ›
-	cvttps2pi mm3, xmm2         ;                           €
-	packssdw mm2, mm3           ;                           ›
-	pminsw mm0, mm2             ;                           ›
-	pmaxsw mm1, mm2             ;                           ›
+	cvttps2pi mm0, xmm0         ;                           ‚ñà
+	movhlps xmm0, xmm0          ;                           ‚ñà
+	cvttps2pi mm2, xmm2         ;                           ‚ñà
+	cvttps2pi mm1, xmm0         ;                           ‚ñà
+	movhlps xmm2, xmm2          ;                           ‚ñà
+	packssdw mm0, mm1           ;                           ‚ñå
+	movq mm1, mm0               ;                           ‚ñå
+	cvttps2pi mm3, xmm2         ;                           ‚ñà
+	packssdw mm2, mm3           ;                           ‚ñå
+	pminsw mm0, mm2             ;                           ‚ñå
+	pmaxsw mm1, mm2             ;                           ‚ñå
 
 	cmp byte ptr [ecx], 4
 	je short bcskip6case
 
-	movzx ebx, byte ptr [ecx+5] ;                           ›
-	movzx edi, byte ptr [ecx+6] ;                           ›
-	movaps xmm4, _caddasm[ebx]  ;xmm4: [ z4, z4, y4, x4]    €
-	addps xmm4, xmm7            ;                           €€±
-	movaps xmm5, _caddasm[edi]  ;xmm5: [ z5, z5, y5, x5]    €
-	addps xmm5, xmm7            ;                           €€±
-	movaps xmm6, xmm4           ;xmm6: [ z4, z4, y4, x4]    €
-	movhlps xmm4, xmm5          ;xmm4: [ z4, z4, z5, z5]    €
-	movlhps xmm5, xmm6          ;xmm5: [ y4, x4, y5, x5]    €
-	rcpps xmm4, xmm4            ;xmm6: [/z4,/z4,/z5,/z5]    €€
-	mulps xmm4, xmm5            ;xmm4: [sy4,sx4,sy5,sx5]    €€±±
+	movzx ebx, byte ptr [ecx+5] ;                           ‚ñå
+	movzx edi, byte ptr [ecx+6] ;                           ‚ñå
+	movaps xmm4, _caddasm[ebx]  ;xmm4: [ z4, z4, y4, x4]    ‚ñà
+	addps xmm4, xmm7            ;                           ‚ñà‚ñà‚ñí
+	movaps xmm5, _caddasm[edi]  ;xmm5: [ z5, z5, y5, x5]    ‚ñà
+	addps xmm5, xmm7            ;                           ‚ñà‚ñà‚ñí
+	movaps xmm6, xmm4           ;xmm6: [ z4, z4, y4, x4]    ‚ñà
+	movhlps xmm4, xmm5          ;xmm4: [ z4, z4, z5, z5]    ‚ñà
+	movlhps xmm5, xmm6          ;xmm5: [ y4, x4, y5, x5]    ‚ñà
+	rcpps xmm4, xmm4            ;xmm6: [/z4,/z4,/z5,/z5]    ‚ñà‚ñà
+	mulps xmm4, xmm5            ;xmm4: [sy4,sx4,sy5,sx5]    ‚ñà‚ñà‚ñí‚ñí
 
-	cvttps2pi mm4, xmm4         ;                           €
-	movhlps xmm4, xmm4          ;                           €
-	cvttps2pi mm5, xmm4         ;                           €
-	packssdw mm4, mm5           ;                           ›
-	pminsw mm0, mm4             ; mm0: [my1,mx1,my0,mx0]    ›
-	pmaxsw mm1, mm4             ; mm1: [My1,Mx1,My0,Mx0]    ›
+	cvttps2pi mm4, xmm4         ;                           ‚ñà
+	movhlps xmm4, xmm4          ;                           ‚ñà
+	cvttps2pi mm5, xmm4         ;                           ‚ñà
+	packssdw mm4, mm5           ;                           ‚ñå
+	pminsw mm0, mm4             ; mm0: [my1,mx1,my0,mx0]    ‚ñå
+	pmaxsw mm1, mm4             ; mm1: [My1,Mx1,My0,Mx0]    ‚ñå
 bcskip6case:
 
-	pshufw mm2, mm0, 0eh        ; mm2: [   ,   ,my1,mx1]    €
-	pshufw mm3, mm1, 0eh        ; mm3: [   ,   ,My1,Mx1]    €
-	pminsw mm0, mm2             ; mm0: [  ?,  ?, my, mx]    ›
-	pmaxsw mm1, mm3             ; mm1: [  ?,  ?, My, Mx]    ›
-	punpckldq mm0, mm1          ; mm0: [ My, Mx, my, mx]    ›
+	pshufw mm2, mm0, 0eh        ; mm2: [   ,   ,my1,mx1]    ‚ñà
+	pshufw mm3, mm1, 0eh        ; mm3: [   ,   ,My1,Mx1]    ‚ñà
+	pminsw mm0, mm2             ; mm0: [  ?,  ?, my, mx]    ‚ñå
+	pmaxsw mm1, mm3             ; mm1: [  ?,  ?, My, Mx]    ‚ñå
+	punpckldq mm0, mm1          ; mm0: [ My, Mx, my, mx]    ‚ñå
 
 		;See SCRCLP2D.BAS for a derivation of these 4 lines:
-	paddsw mm0, mm6 ;_qsum0     ; mm0: ["+?,"+?,"+?,"+?]    €
-	pmaxsw mm0, mm7 ;_qsum1     ; mm0: [sy1,sx1,sy0,sx0]    €
-	pshufw mm1, mm0, 0eeh       ; mm1: [sy1,sx1,sy1,sx1]    €
-	psubusw mm1, mm0            ; mm1: [  0,  0, dy, dx]    ›
+	paddsw mm0, mm6 ;_qsum0     ; mm0: ["+?,"+?,"+?,"+?]    ‚ñà
+	pmaxsw mm0, mm7 ;_qsum1     ; mm0: [sy1,sx1,sy0,sx0]    ‚ñà
+	pshufw mm1, mm0, 0eeh       ; mm1: [sy1,sx1,sy1,sx1]    ‚ñà
+	psubusw mm1, mm0            ; mm1: [  0,  0, dy, dx]    ‚ñå
 		;kv6frameplace -= ((32767-yres)*bpl + (32767-xres)*4);
 
-	movd edx, mm1               ; edx: [ dy, dx]            €
-	pmaddwd mm0, _qbplbpp       ; mm0: [      ?,   offs]    €±± (=y*bpl+x*bpp)
-	movd ebx, mm1               ; ebx: [ dy, dx]            ›
-	and edx, 0ffffh             ; ebx: [  0, dx]            ›
-	jz short retboundcube       ;                           ›
-	sub ebx, 65536              ;                           ›
-	jc short retboundcube       ;                           ›
+	movd edx, mm1               ; edx: [ dy, dx]            ‚ñà
+	pmaddwd mm0, _qbplbpp       ; mm0: [      ?,   offs]    ‚ñà‚ñí‚ñí (=y*bpl+x*bpp)
+	movd ebx, mm1               ; ebx: [ dy, dx]            ‚ñå
+	and edx, 0ffffh             ; ebx: [  0, dx]            ‚ñå
+	jz short retboundcube       ;                           ‚ñå
+	sub ebx, 65536              ;                           ‚ñå
+	jc short retboundcube       ;                           ‚ñå
 
 	movzx edi, byte ptr [eax+7]
 	punpcklbw mm5, [eax]
@@ -1062,19 +1062,19 @@ bcskip6case_3dn:
 	punpckldq mm0, mm1          ; mm0: [ My, Mx, my, mx]
 
 		;See SCRCLP2D.BAS for a derivation of these 4 lines:
-	paddsw mm0, _qsum0          ; mm0: ["+?,"+?,"+?,"+?]    €
-	pmaxsw mm0, _qsum1          ; mm0: [sy1,sx1,sy0,sx0]    €
-	pshufw mm1, mm0, 0eeh       ; mm1: [sy1,sx1,sy1,sx1]    €
-	psubusw mm1, mm0            ; mm1: [  0,  0, dy, dx]    ›
+	paddsw mm0, _qsum0          ; mm0: ["+?,"+?,"+?,"+?]    ‚ñà
+	pmaxsw mm0, _qsum1          ; mm0: [sy1,sx1,sy0,sx0]    ‚ñà
+	pshufw mm1, mm0, 0eeh       ; mm1: [sy1,sx1,sy1,sx1]    ‚ñà
+	psubusw mm1, mm0            ; mm1: [  0,  0, dy, dx]    ‚ñå
 		;kv6frameplace -= ((32767-yres)*bpl + (32767-xres)*4);
 
-	movd edx, mm1               ; edx: [ dy, dx]            €
-	pmaddwd mm0, _qbplbpp       ; mm0: [      ?,   offs]    €±± (=y*bpl+x*bpp)
-	movd ebx, mm1               ; ebx: [ dy, dx]            ›
-	and edx, 0ffffh             ; ebx: [  0, dx]            ›
-	jz short retboundcube_3dn   ;                           ›
-	sub ebx, 65536              ;                           ›
-	jc short retboundcube_3dn   ;                           ›
+	movd edx, mm1               ; edx: [ dy, dx]            ‚ñà
+	pmaddwd mm0, _qbplbpp       ; mm0: [      ?,   offs]    ‚ñà‚ñí‚ñí (=y*bpl+x*bpp)
+	movd ebx, mm1               ; ebx: [ dy, dx]            ‚ñå
+	and edx, 0ffffh             ; ebx: [  0, dx]            ‚ñå
+	jz short retboundcube_3dn   ;                           ‚ñå
+	sub ebx, 65536              ;                           ‚ñå
+	jc short retboundcube_3dn   ;                           ‚ñå
 
 	movzx edi, byte ptr [eax+7]
 	punpcklbw mm5, [eax]

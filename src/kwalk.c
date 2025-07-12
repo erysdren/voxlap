@@ -229,7 +229,7 @@ static char *savefileselect (char *mess, char *spec, char *defext)
 
 //-----------------------  WIN file select code ends -------------------------
 
-	//Note: ³p1-p0³ must equal ³p2-p0³
+	//Note: â”‚p1-p0â”‚ must equal â”‚p2-p0â”‚
 void drawarc3d (point3d *p0, point3d *p1, point3d *p2, long col)
 {
 	point3d tp, tp2;

@@ -2385,13 +2385,13 @@ long clearscreen (long fillcolor)
 			{
 				j = p+i-12;
 				for(x=p;x<=j;x+=12)
-				{                             //  x-j ³0123³4567³89AB
-					*(long *)(x  ) = dacol[0]; // ÚÄÄÄÄÅÄÄÄÄÅÄÄÄÄÅÄÄÄÄ¿
-					*(long *)(x+4) = dacol[1]; // ³ 12 ³    ³    ³    ³
-					*(long *)(x+8) = dacol[2]; // ³  9 ³BGR ³    ³    ³
-				}                             // ³  6 ³BGRB³GR  ³    ³
-				switch(x-j)                   // ³  3 ³BGRB³GRBG³R   ³
-				{                             // ÀÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÙ
+				{                             //  x-j â”‚0123â”‚4567â”‚89AB
+					*(long *)(x  ) = dacol[0]; // â”Œâ”€â”€â”€â”€â”¼â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”
+					*(long *)(x+4) = dacol[1]; // â”‚ 12 â”‚    â”‚    â”‚    â”‚
+					*(long *)(x+8) = dacol[2]; // â”‚  9 â”‚BGR â”‚    â”‚    â”‚
+				}                             // â”‚  6 â”‚BGRBâ”‚GR  â”‚    â”‚
+				switch(x-j)                   // â”‚  3 â”‚BGRBâ”‚GRBGâ”‚R   â”‚
+				{                             // â””â”€â”€â”€â”€â”´â”€â”€â”€â”€â”´â”€â”€â”€â”€â”´â”€â”€â”€â”€â”˜
 					case 9: *(short *)x = (short)dacol[0]; *(char *)(x+2) = (char)dacol[2]; break;
 					case 6: *(long *)x = dacol[0]; *(short *)(x+4) = (short)dacol[1]; break;
 					case 3: *(long *)x = dacol[0]; *(long *)(x+4) = dacol[1]; *(char *)(x+8) = (char)dacol[2]; break;
