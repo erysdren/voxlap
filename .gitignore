@@ -1,0 +1,8 @@
+# build folders
+build*/
+
+# cmake user presets
+CMakeUserPresets.json
+
+# local files
+untracked*/
