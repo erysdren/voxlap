@@ -4,7 +4,7 @@ genland.exe: genland.cpp; cl /J /TP genland.cpp /Ox /Ob2 /G6Fy /MD /QIfist /link
 !if 0
 #endif
 
-#if 0
+/*
 Genland - procedural landscape generator
 by Tom Dobrowolski (http://ged.ax.pl/~tomkh) (heightmap generator)
 and Ken Silverman (http://advsys.net/ken) (DTA/PNG/VXL writers)
@@ -21,19 +21,24 @@ License for this code:
 History:
 	2005-12-24: Released GENLAND.EXE with Ken's GROUDRAW demos.
 	2006-03-10: Released GENLAND.CPP source code
+*/
 
+#ifndef _MSC_VER
+#define __forceinline inline __attribute__((always_inline))
+#define __assume(cond) do { if (!(cond)) __builtin_unreachable(); } while (0)
+#define stricmp strcasecmp
 #endif
 
 #include <memory.h>
 #include <math.h>
-#include <conio.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #pragma pack(1)
 typedef struct { double x, y, z; } dpoint3d;
-typedef struct { unsigned char b, g, r, a; } vcol;
+typedef struct { uint8_t b, g, r, a; } vcol;
 
 #define max(a,b)  (((a) > (b)) ? (a) : (b))
 #define min(a,b)  (((a) < (b)) ? (a) : (b))
@@ -46,10 +51,10 @@ typedef struct { unsigned char b, g, r, a; } vcol;
 	#define VSID 256
 #endif
 
-long savevxl (char *filnam, vcol *argb)
+int32_t savevxl (const char *filnam, vcol *argb)
 {
 	dpoint3d ipo, ist, ihe, ifo;
-	long i, j, x, y, z, zz;
+	int32_t i, j, x, y, z, zz;
 	FILE *fil;
 
 	if (!(fil = fopen(filnam,"wb"))) return(-1);
@@ -70,19 +75,19 @@ long savevxl (char *filnam, vcol *argb)
 	for(y=0;y<VSID;y++)
 		for(x=0;x<VSID;x++,argb++)
 		{
-			z = (long)argb[0].a; zz = z+1;
+			z = (int32_t)argb[0].a; zz = z+1;
 			for(i=-1;i<=1;i+=2)
 			{
-				if ((unsigned long)(x+i) < VSID)
-					{ j = (long)argb[i].a; if (j > zz) zz = j; }
-				if ((unsigned long)(y+i) < VSID)
-					{ j = (long)argb[i*VSID].a; if (j > zz) zz = j; }
+				if ((uint32_t)(x+i) < VSID)
+					{ j = (int32_t)argb[i].a; if (j > zz) zz = j; }
+				if ((uint32_t)(y+i) < VSID)
+					{ j = (int32_t)argb[i*VSID].a; if (j > zz) zz = j; }
 			}
 
 				//Write slab header for column(x,y)
 			fputc(0,fil); fputc(z,fil); fputc((zz-1)&255,fil); fputc(0,fil);
 
-			i = (((*(long *)argb)&0xffffff)|0x80000000);
+			i = (((*(int32_t *)argb)&0xffffff)|0x80000000);
 				//Write list of colors on column(x,y)
 			for(;z<zz;z++) fwrite(&i,4,1,fil);
 		}
@@ -93,49 +98,49 @@ long savevxl (char *filnam, vcol *argb)
 
 //------------------------ Simple PNG OUT code begins ------------------------
 FILE *pngofil;
-long pngoxplc, pngoyplc, pngoxsiz, pngoysiz;
-unsigned long pngocrc, pngoadcrc;
+int32_t pngoxplc, pngoyplc, pngoxsiz, pngoysiz;
+uint32_t pngocrc, pngoadcrc;
 
-static unsigned long bswap (unsigned long a)
+static uint32_t bswap (uint32_t a)
 	{ return(((a&0xff0000)>>8) + ((a&0xff00)<<8) + (a<<24) + (a>>24)); }
 
-long crctab32[256];  //SEE CRC32.C
-#define updatecrc32(c,crc) crc=(crctab32[(crc^c)&255]^(((unsigned)crc)>>8))
+int32_t crctab32[256];  //SEE CRC32.C
+#define updatecrc32(c,crc) crc=(crctab32[(crc^c)&255]^(((uint32_t)crc)>>8))
 #define updateadl32(c,crc) \
 {  c += (crc&0xffff); if (c   >= 65521) c   -= 65521; \
 	crc = (crc>>16)+c; if (crc >= 65521) crc -= 65521; \
 	crc = (crc<<16)+c; \
 } \
 
-void fputbytes (unsigned long v, long n)
+void fputbytes (uint32_t v, int32_t n)
 	{ for(;n;v>>=8,n--) { fputc(v,pngofil); updatecrc32(v,pngocrc); } }
 
-void pngoutopenfile (char *fnam, long xsiz, long ysiz)
+void pngoutopenfile (const char *fnam, int32_t xsiz, int32_t ysiz)
 {
-	long i, j, k;
-	unsigned char a[40];
+	int32_t i, j, k;
+	uint8_t a[40];
 
 	pngoxsiz = xsiz; pngoysiz = ysiz; pngoxplc = pngoyplc = 0;
 	for(i=255;i>=0;i--)
 	{
-		k = i; for(j=8;j;j--) k = ((unsigned long)k>>1)^((-(k&1))&0xedb88320);
+		k = i; for(j=8;j;j--) k = ((uint32_t)k>>1)^((-(k&1))&0xedb88320);
 		crctab32[i] = k;
 	}
 	pngofil = fopen(fnam,"wb");
-	*(long *)&a[0] = 0x474e5089; *(long *)&a[4] = 0x0a1a0a0d;
-	*(long *)&a[8] = 0x0d000000; *(long *)&a[12] = 0x52444849;
-	*(long *)&a[16] = bswap(xsiz); *(long *)&a[20] = bswap(ysiz);
-	*(long *)&a[24] = 0x00000608; *(long *)&a[28] = 0;
+	*(int32_t *)&a[0] = 0x474e5089; *(int32_t *)&a[4] = 0x0a1a0a0d;
+	*(int32_t *)&a[8] = 0x0d000000; *(int32_t *)&a[12] = 0x52444849;
+	*(int32_t *)&a[16] = bswap(xsiz); *(int32_t *)&a[20] = bswap(ysiz);
+	*(int32_t *)&a[24] = 0x00000608; *(int32_t *)&a[28] = 0;
 	for(i=12,j=-1;i<29;i++) updatecrc32(a[i],j);
-	*(long *)&a[29] = bswap(j^-1);
+	*(int32_t *)&a[29] = bswap(j^-1);
 	fwrite(a,37,1,pngofil);
 	pngocrc = -1; pngoadcrc = 1;
 	fputbytes(0x54414449,4); fputbytes(0x0178,2);
 }
 
-void pngoutputpixel (long rgbcol)
+void pngoutputpixel (int32_t rgbcol)
 {
-	long a[4];
+	int32_t a[4];
 
 	if (!pngoxplc)
 	{
@@ -162,7 +167,7 @@ void pngoutputpixel (long rgbcol)
 // Noise algo based on "Improved Perlin Noise" by Ken Perlin
 // http://mrl.nyu.edu/~perlin/
 
-static __forceinline float fgrad (long h, float x, float y, float z)
+static __forceinline float fgrad (int32_t h, float x, float y, float z)
 {
 	switch (h) //h masked before call (h&15)
 	{
@@ -188,10 +193,10 @@ static __forceinline float fgrad (long h, float x, float y, float z)
 	return(0);
 }
 
-static unsigned char noisep[512], noisep15[512];
+static uint8_t noisep[512], noisep15[512];
 static void noiseinit ()
 {
-	long i, j, k;
+	int32_t i, j, k;
 	float f;
 
 	for(i=256-1;i>=0;i--) noisep[i] = i;
@@ -202,9 +207,9 @@ static void noiseinit ()
 
 #define NEWNOISE 0
 #if (NEWNOISE == 0)
-double noise3d (double fx, double fy, double fz, long mask)
+double noise3d (double fx, double fy, double fz, int32_t mask)
 {
-	long i, l[6], a[4];
+	int32_t i, l[6], a[4];
 	float p[3], f[8];
 
 	//if (mask > 255) mask = 255; //Checked before call
@@ -234,9 +239,9 @@ double noise3d (double fx, double fy, double fz, long mask)
 }
 #else
 	//At attempt at optimization... didn't help much
-double noise3d (double fx, double fy, double fz, long mask, double stp, double *nx, double *ny)
+double noise3d (double fx, double fy, double fz, int32_t mask, double stp, double *nx, double *ny)
 {
-	long i, l[6], a[8];
+	int32_t i, l[6], a[8];
 	float p[3], t[3], f[8];
 	float g[8], h[4], ff;
 	double ret;
@@ -299,14 +304,14 @@ double noise3d (double fx, double fy, double fz, long mask, double stp, double *
 vcol buf[VSID*VSID];
 vcol amb[VSID*VSID]; // ambient
 float hgt[VSID*VSID];
-unsigned char sh[VSID*VSID];
+uint8_t sh[VSID*VSID];
 
 #define PI 3.141592653589793
 
 #define SIGNBPL 13
 #define SIGNXSIZ 100
 #define SIGNYSIZ 19
-static unsigned char signfplc[] =
+static uint8_t signfplc[] =
 {
 	0x10,0xdd,0xc1,0x15,0xdc,0x45,0xcc,0xdd,0x5d,0x74,0x71,0xe9,0x00,
 	0xb0,0x55,0x41,0x15,0x48,0x6d,0x54,0x55,0x55,0x54,0x11,0x45,0x00,
@@ -329,9 +334,9 @@ static unsigned char signfplc[] =
 	0x00,0x51,0x77,0x10,0x57,0x30,0x77,0x52,0x77,0x27,0x77,0x09,0x00,
 };
 	//Disabling this will result in lots of crashing and viruses in your future! :P
-void signprint (long x, long y)
+void signprint (int32_t x, int32_t y)
 {
-	long *lptr = (long *)(((y*VSID + x)<<2) + ((long)buf));
+	int32_t *lptr = (int32_t *)(((y*VSID + x)<<2) + ((intptr_t)buf));
 	for(y=0;y<SIGNYSIZ;y++,lptr+=VSID)
 		for(x=0;x<SIGNXSIZ;x++)
 			if (signfplc[y*SIGNBPL+(x>>3)]&(1<<(x&7))) lptr[x] -= 0x01101010;
@@ -339,7 +344,7 @@ void signprint (long x, long y)
 
 //-----------------------------------------------------------------------------
 
-typedef struct { long f, p, x, y; } tiletype;
+typedef struct { intptr_t f; int32_t p, x, y; } tiletype;
 //----------------- Wu's algo (hi quality, fast, big code :/) -----------------
 //The following big block of code (up to the genpal* stuff) came from:
 //   http://www.ece.mcmaster.ca/~xwu/cq.c on 12/14/2005
@@ -374,22 +379,22 @@ Free to distribute, comments and suggestions are appreciated.
 **********************************************************************/
 
 	//r0 < col <= r1, etc..
-typedef struct { long r0, r1, g0, g1, b0, b1, vol; } box;
+typedef struct { int32_t r0, r1, g0, g1, b0, b1, vol; } box;
 
-	//Histogram is in elements 1..HISTSIZE along each axis,
+	//Histogram is in elements 1..HISTSIZE aint32_t each axis,
 	//element 0 is for base or marginal value. Note:these must start out 0!
-static long *wt = 0, *mr = 0, *mg = 0, *mb = 0;
+static int32_t *wt = 0, *mr = 0, *mg = 0, *mb = 0;
 static float *m2 = 0;
-static unsigned char *tag;
+static uint8_t *tag;
 
 	//build 3-D color histogram of counts, r/g/b, c^2
-static void Hist3d (tiletype *tt, long *vwt, long *vmr, long *vmg, long *vmb, float *m2)
+static void Hist3d (tiletype *tt, int32_t *vwt, int32_t *vmr, int32_t *vmg, int32_t *vmb, float *m2)
 {
-	long i, x, y, r, g, b, *lptr, sq[256];
+	int32_t i, x, y, r, g, b, *lptr, sq[256];
 
 	for(i=0;i<256;i++) sq[i] = i*i;
-	lptr = (long *)tt->f;
-	for(y=0;y<tt->y;y++,lptr=(long *)(((long)lptr)+tt->p))
+	lptr = (int32_t *)tt->f;
+	for(y=0;y<tt->y;y++,lptr=(int32_t *)(((intptr_t)lptr)+tt->p))
 		for(x=0;x<tt->x;x++)
 		{
 			r = (lptr[x]>>16)&255;
@@ -410,12 +415,12 @@ static void Hist3d (tiletype *tt, long *vwt, long *vmr, long *vmg, long *vmb, fl
 	//   m2[r][g][b] = sum over voxel of c^2*P(c)
 	// Divide by pic.x*pic.y for prob. range {0 to 1}
 	//Convert histogram to moments for rapid calculation of sums of ^ over any desired box
-static void M3d (long *vwt, long *vmr, long *vmg, long *vmb, float *m2)
+static void M3d (int32_t *vwt, int32_t *vmr, int32_t *vmg, int32_t *vmb, float *m2)
 {
 	float line2, area2[33];
-	long line, lr, lg, lb, area[33], ar[33], ag[33], ab[33];
-	unsigned short ind1, ind2;
-	unsigned char i, r, g, b;
+	int32_t line, lr, lg, lb, area[33], ar[33], ag[33], ab[33];
+	uint16_t ind1, ind2;
+	uint8_t i, r, g, b;
 
 	for(r=1;r<=32;r++)
 	{
@@ -448,7 +453,7 @@ static void M3d (long *vwt, long *vmr, long *vmg, long *vmb, float *m2)
 }
 
 	//Compute sum over box of any given statistic
-static long Vol (box *cube, long *mmt)
+static int32_t Vol (box *cube, int32_t *mmt)
 {
 	return(mmt[cube->r1*(33*33)+cube->g1*33+cube->b1] - mmt[cube->r1*(33*33)+cube->g1*33+cube->b0]
 			-mmt[cube->r1*(33*33)+cube->g0*33+cube->b1] + mmt[cube->r1*(33*33)+cube->g0*33+cube->b0]
@@ -459,7 +464,7 @@ static long Vol (box *cube, long *mmt)
 	//Bot&Top allow faster calculation of Vol() for proposed subbox of given box.
 	//Sum of Top&Bot is Vol() of subbox split in given direction & w/specified new upper bound.
 	//Compute part of Vol(cube,mmt) that doesn't depend on r1/g1/b1 (depending on dir)
-static long Bot (box *cube, unsigned char dir, long *mmt)
+static int32_t Bot (box *cube, uint8_t dir, int32_t *mmt)
 {
 	switch(dir)
 	{
@@ -474,7 +479,7 @@ static long Bot (box *cube, unsigned char dir, long *mmt)
 }
 
 	//Compute rest of Vol(cube,mmt), substituting pos for r1/g1/b1 (depending on dir)
-static long Top (box *cube, unsigned char dir, long pos, long *mmt)
+static int32_t Top (box *cube, uint8_t dir, int32_t pos, int32_t *mmt)
 {
 	switch(dir)
 	{
@@ -506,11 +511,11 @@ static float Var (box *cube)
 	//Minimize sum of variances of 2 subboxes. The sum(c^2) terms can be ignored since their sum
 	//over both subboxes is the same (sum for whole box) no matter where we split.
 	//The remaining terms have - sign in variance formula; we drop - and MAXIMIZE sum of the 2 terms.
-static float Maximize (box *cube, unsigned char dir, long first, long last, long *cut,
-							  long wr, long wg, long wb, long ww)
+static float Maximize (box *cube, uint8_t dir, int32_t first, int32_t last, int32_t *cut,
+							  int32_t wr, int32_t wg, int32_t wb, int32_t ww)
 {
 	float f, fmax;
-	long i, hr, hg, hb, hw, br, bg, bb, bw;
+	int32_t i, hr, hg, hb, hw, br, bg, bb, bw;
 
 	br = Bot(cube,dir,mr);
 	bg = Bot(cube,dir,mg);
@@ -539,11 +544,11 @@ static float Maximize (box *cube, unsigned char dir, long first, long last, long
 	return(fmax);
 }
 
-static long Cut (box *set1, box *set2)
+static int32_t Cut (box *set1, box *set2)
 {
 	float maxr, maxg, maxb;
-	long cutr, cutg, cutb, wr, wg, wb, ww;
-	unsigned char dir;
+	int32_t cutr, cutg, cutb, wr, wg, wb, ww;
+	uint8_t dir;
 
 	wr = Vol(set1,mr);
 	wg = Vol(set1,mg);
@@ -572,9 +577,9 @@ static long Cut (box *set1, box *set2)
 	return(1);
 }
 
-static void Mark (box *cube, long label, unsigned char *tag)
+static void Mark (box *cube, int32_t label, uint8_t *tag)
 {
-	long r, g, b;
+	int32_t r, g, b;
 
 	for(r=cube->r0+1;r<=cube->r1;r++)
 		 for(g=cube->g0+1;g<=cube->g1;g++)
@@ -592,34 +597,34 @@ void genpal_free ()
 	if (wt) { free(wt); wt = 0; }
 }
 
-long genpal_init ()
+int32_t genpal_init ()
 {
 		//Eats 33*33*33*4*5 = 718740 bytes total
-	wt = (long *)malloc(33*33*33*sizeof(long)); if (!wt) { genpal_free(); return(-1); }
-	mr = (long *)malloc(33*33*33*sizeof(long)); if (!mr) { genpal_free(); return(-1); }
-	mg = (long *)malloc(33*33*33*sizeof(long)); if (!mg) { genpal_free(); return(-1); }
-	mb = (long *)malloc(33*33*33*sizeof(long)); if (!mb) { genpal_free(); return(-1); }
+	wt = (int32_t *)malloc(33*33*33*sizeof(int32_t)); if (!wt) { genpal_free(); return(-1); }
+	mr = (int32_t *)malloc(33*33*33*sizeof(int32_t)); if (!mr) { genpal_free(); return(-1); }
+	mg = (int32_t *)malloc(33*33*33*sizeof(int32_t)); if (!mg) { genpal_free(); return(-1); }
+	mb = (int32_t *)malloc(33*33*33*sizeof(int32_t)); if (!mb) { genpal_free(); return(-1); }
 	m2 = (float *)malloc(33*33*33*sizeof(float)); if (!m2) { genpal_free(); return(-1); }
-	memset(wt,0,33*33*33*sizeof(long));
-	memset(mr,0,33*33*33*sizeof(long));
-	memset(mg,0,33*33*33*sizeof(long));
-	memset(mb,0,33*33*33*sizeof(long));
+	memset(wt,0,33*33*33*sizeof(int32_t));
+	memset(mr,0,33*33*33*sizeof(int32_t));
+	memset(mg,0,33*33*33*sizeof(int32_t));
+	memset(mb,0,33*33*33*sizeof(int32_t));
 	memset(m2,0,33*33*33*sizeof(float));
 	return(0);
 }
 
 void genpal_addhist (tiletype *tt)
 {
-	Hist3d(tt,(long *)wt,(long *)mr,(long *)mg,(long *)mb,(float *)m2); //printf("Histogram done\n");
+	Hist3d(tt,(int32_t *)wt,(int32_t *)mr,(int32_t *)mg,(int32_t *)mb,(float *)m2); //printf("Histogram done\n");
 }
 
-void genpal (long *pal)
+void genpal (int32_t *pal)
 {
 	box cube[256];
 	float f, vv[256];
-	long i, k, n, w, colsiz;
+	int32_t i, k, n, w, colsiz;
 
-	M3d((long *)wt,(long *)mr,(long *)mg,(long *)mb,(float *)m2); //printf("Moments done\n");
+	M3d((int32_t *)wt,(int32_t *)mr,(int32_t *)mg,(int32_t *)mb,(float *)m2); //printf("Moments done\n");
 	colsiz = 256;
 	cube[0].r0 = cube[0].g0 = cube[0].b0 = 0;
 	cube[0].r1 = cube[0].g1 = cube[0].b1 = 32;
@@ -649,7 +654,7 @@ void genpal (long *pal)
 	//printf("Partition done\n");
 	if (m2) { free(m2); m2 = 0; }
 
-	tag = (unsigned char *)malloc(33*33*33); if (!tag) { printf("Not enough space\n"); exit(1); }
+	tag = (uint8_t *)malloc(33*33*33); if (!tag) { printf("Not enough space\n"); exit(1); }
 	for(k=0;k<colsiz;k++)
 	{
 		Mark(&cube[k],k,tag);
@@ -662,14 +667,14 @@ void genpal (long *pal)
 
 void genpal_32to8 (tiletype *rt, tiletype *wt)
 {
-	long i, x, y, xe, ye, *lptr;
-	unsigned char *cptr;
+	int32_t i, x, y, xe, ye, *lptr;
+	uint8_t *cptr;
 
-	cptr = (unsigned char *)wt->f; i = 0;
-	lptr = (long *)rt->f;
+	cptr = (uint8_t *)wt->f; i = 0;
+	lptr = (int32_t *)rt->f;
 	xe = rt->x; if (xe < wt->x) xe = wt->x;
 	ye = rt->y; if (ye < wt->y) ye = wt->y;
-	for(y=0;y<ye;y++,cptr+=wt->p,lptr=(long *)(((long)lptr)+rt->p))
+	for(y=0;y<ye;y++,cptr+=wt->p,lptr=(int32_t *)(((intptr_t)lptr)+rt->p))
 		for(x=0;x<xe;x++,i++)
 			cptr[x] = tag[((((lptr[x]>>16)&255)>>3)+1)*(33*33)+
 							  ((((lptr[x]>> 8)&255)>>3)+1)*33+
@@ -678,9 +683,9 @@ void genpal_32to8 (tiletype *rt, tiletype *wt)
 
 //--------------------------------------------------------------------------------------------------
 
-void savepcx (char *filnam, tiletype *tt, long *pal, long optimizepal)
+void savepcx (const char *filnam, tiletype *tt, int32_t *pal, int32_t optimizepal)
 {
-	static unsigned char pcxhead[128] =
+	static uint8_t pcxhead[128] =
 	{
 		10,5,1,8,0,0,0,0,63,1,199,0,64,1,200,0,0,0,0,8,8,8,16,16,16,24,24,24,32,32,32,40,
 		40,40,48,48,48,56,56,56,64,64,64,72,72,72,80,80,80,88,88,88,96,96,96,104,104,104,112,112,112,120,120,120,
@@ -688,14 +693,14 @@ void savepcx (char *filnam, tiletype *tt, long *pal, long optimizepal)
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	};
 	FILE *fil;
-	long x, y, nx, palfrq[256], gap;
-	unsigned char ch, palut[256], palut2[256];
-	unsigned char *cptr;
+	int32_t x, y, nx, palfrq[256], gap;
+	uint8_t ch, palut[256], palut2[256];
+	uint8_t *cptr;
 
-	*(short *)&pcxhead[8] = (short)(tt->x-1);
-	*(short *)&pcxhead[10] = (short)(tt->y-1);
-	*(short *)&pcxhead[12] = *(short *)&pcxhead[66] = tt->x;
-	*(short *)&pcxhead[14] = (short)tt->y;
+	*(int16_t *)&pcxhead[8] = (int16_t)(tt->x-1);
+	*(int16_t *)&pcxhead[10] = (int16_t)(tt->y-1);
+	*(int16_t *)&pcxhead[12] = *(int16_t *)&pcxhead[66] = tt->x;
+	*(int16_t *)&pcxhead[14] = (int16_t)tt->y;
 
 	fil = fopen(filnam,"wb"); if (!fil) return;
 	fwrite(pcxhead,128,1,fil);
@@ -703,7 +708,7 @@ void savepcx (char *filnam, tiletype *tt, long *pal, long optimizepal)
 	if (optimizepal)
 	{
 		memset(palfrq,0,sizeof(palfrq));
-		cptr = (unsigned char *)tt->f;
+		cptr = (uint8_t *)tt->f;
 		for(y=0;y<tt->y;y++,cptr+=tt->p)
 			for(x=0;x<tt->x;x=nx)
 			{
@@ -725,7 +730,7 @@ void savepcx (char *filnam, tiletype *tt, long *pal, long optimizepal)
 		for(x=0;x<256;x++) palut[palut2[x]] = x;
 	} else { for(x=0;x<256;x++) palut[x] = x; }
 
-	cptr = (unsigned char *)tt->f;
+	cptr = (uint8_t *)tt->f;
 	for(y=0;y<tt->y;y++,cptr+=tt->p)
 		for(x=0;x<tt->x;x=nx)
 		{
@@ -746,8 +751,6 @@ void savepcx (char *filnam, tiletype *tt, long *pal, long optimizepal)
 
 //--------------------------------------------------------------------------------------------------
 
-static __forceinline __int64 rdtsc64 () { _asm rdtsc }
-
 int main (int argc, char **argv)
 {
 	#define OCTMAX 10
@@ -755,8 +758,8 @@ int main (int argc, char **argv)
 	double dx, dy, d, g, g2, river, amplut[OCTMAX], samp[3], csamp[3];
 	double dot, nx, ny, nz, gr, gg, gb;
 	float f;
-	long i, j, x, y, k, o, maxa, pal[256], msklut[OCTMAX];
-	long writedta = 0, writepng = 0, writevxl = 0;
+	int32_t i, j, x, y, k, o, maxa, pal[256], msklut[OCTMAX];
+	int32_t writedta = 0, writepng = 0, writevxl = 0;
 
 	for(i=argc-1;i>0;i--)
 	{
@@ -780,7 +783,6 @@ int main (int argc, char **argv)
 
 		//Tom's algorithm from 12/04/2005
 	printf("Generating landscape\n");
-	//__int64 q0, q1; q0 = rdtsc64();
 	d = 1.0;
 	for(i=0;i<OCTMAX;i++)
 	{
@@ -860,23 +862,22 @@ int main (int argc, char **argv)
 
 
 			d = .3;
-			amb[k].r = (unsigned char)min(max(gr*d,0),255);
-			amb[k].g = (unsigned char)min(max(gg*d,0),255);
-			amb[k].b = (unsigned char)min(max(gb*d,0),255);
+			amb[k].r = (uint8_t)min(max(gr*d,0),255);
+			amb[k].g = (uint8_t)min(max(gg*d,0),255);
+			amb[k].b = (uint8_t)min(max(gb*d,0),255);
 			maxa = max(max(amb[k].r,amb[k].g),amb[k].b);
 
 				//lighting
 			d = (nx*.5 + ny*.25 - nz)/sqrt(.5*.5 + .25*.25 + 1.0*1.0); d *= 1.2;
-			buf[k].a = (unsigned char)(175.0-samp[0]*((double)VSID/256.0));
-			buf[k].r = (unsigned char)min(max(gr*d,0),255-maxa);
-			buf[k].g = (unsigned char)min(max(gg*d,0),255-maxa);
-			buf[k].b = (unsigned char)min(max(gb*d,0),255-maxa);
+			buf[k].a = (uint8_t)(175.0-samp[0]*((double)VSID/256.0));
+			buf[k].r = (uint8_t)min(max(gr*d,0),255-maxa);
+			buf[k].g = (uint8_t)min(max(gg*d,0),255-maxa);
+			buf[k].b = (uint8_t)min(max(gb*d,0),255-maxa);
 
 			hgt[k] = csamp[0];
 		}
 		i = ((y+1)*100)/VSID; if (i > (y*100)/VSID) printf("\r%i%%",i);
 	}
-	//q1 = rdtsc64(); printf("%I64d cc\n",q1-q0);
 	printf("\r");
 
 
@@ -925,26 +926,26 @@ int main (int argc, char **argv)
 		k = 0;
 		for(y=0;y<VSID;y++)
 			for(x=0;x<VSID;x++,k++)
-				pngoutputpixel(*(long *)&buf[k]);
+				pngoutputpixel(*(int32_t *)&buf[k]);
 	}
 	if (writedta)
 	{
 		tiletype rt, wt;
-		long xx, yy;
-		unsigned char *cbuf;
+		int32_t xx, yy;
+		uint8_t *cbuf;
 
-		cbuf = (unsigned char *)malloc(VSID*VSID); if (!cbuf) { puts("Error"); exit(1); }
+		cbuf = (uint8_t *)malloc(VSID*VSID); if (!cbuf) { puts("Error"); exit(1); }
 
 		k = 0;
 		for(y=0;y<VSID;y++)
 			for(x=0;x<VSID;x++,k++)
-				cbuf[y*VSID+x] = (unsigned char)(175-buf[k].a); //a ranges from 0 to 175
+				cbuf[y*VSID+x] = (uint8_t)(175-buf[k].a); //a ranges from 0 to 175
 		for(i=0;i<256;i++) pal[i] = i*0x10101;
-		wt.f = (long)cbuf; wt.p = VSID; wt.x = VSID; wt.y = VSID;
+		wt.f = (intptr_t)cbuf; wt.p = VSID; wt.x = VSID; wt.y = VSID;
 		printf("Writing d1.dta\n");
 		savepcx("d1.dta",&wt,pal,0);
 	
-		rt.f = (long)buf; rt.x = rt.y = VSID; rt.p = (rt.x<<2);
+		rt.f = (intptr_t)buf; rt.x = rt.y = VSID; rt.p = (rt.x<<2);
 		if (genpal_init()) { printf("Error!"); exit(1); }
 		genpal_addhist(&rt); //Call for every tile
 		genpal(pal);
