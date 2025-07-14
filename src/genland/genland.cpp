@@ -200,7 +200,7 @@ static void noiseinit ()
 	float f;
 
 	for(i=256-1;i>=0;i--) noisep[i] = i;
-	for(i=256-1;i> 0;i--) { j = ((rand()*(i+1))>>15); k = noisep[i]; noisep[i] = noisep[j]; noisep[j] = k; }
+	for(i=256-1;i> 0;i--) { j = ((rand()*(i+1))&15); k = noisep[i]; noisep[i] = noisep[j]; noisep[j] = k; }
 	for(i=256-1;i>=0;i--) noisep[i+256] = noisep[i];
 	for(i=512-1;i>=0;i--) noisep15[i] = noisep[i]&15;
 }
