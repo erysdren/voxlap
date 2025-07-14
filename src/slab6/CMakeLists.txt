@@ -5,3 +5,5 @@ if(WIN32 OR MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	target_sources(slab6 PRIVATE slab6.rc)
 endif()
 target_link_libraries(slab6 PRIVATE sdl3main)
+
+target_link_libraries(slab6 PRIVATE $<$<BOOL:${VOXLAP_USE_ASAN}>:ASAN::ASAN>)
