@@ -1,17 +1,6 @@
 project(src)
 
-if(EMSCRIPTEN OR WIN32 OR MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	find_package(SDL3 CONFIG COMPONENTS SDL3-static)
-else()
-	find_package(SDL3 CONFIG COMPONENTS SDL3-shared)
-endif()
-
-if(SDL3_FOUND)
-	add_library(sdl3main STATIC sdl3main.c)
-	target_link_libraries(sdl3main PUBLIC SDL3::SDL3)
-	target_include_directories(sdl3main PUBLIC ${PROJECT_SOURCE_DIR})
-endif()
-
+# winmain library
 if(WIN32 OR MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	add_library(winmain STATIC winmain.cpp)
 	target_link_directories(winmain PUBLIC ${PROJECT_SOURCE_DIR}/ext/dx8/lib/)
@@ -24,5 +13,24 @@ if(WIN32 OR MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	endif()
 endif()
 
+# sdl3 port of winmain library
+if(EMSCRIPTEN OR WIN32 OR MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	find_package(SDL3 CONFIG COMPONENTS SDL3-static)
+else()
+	find_package(SDL3 CONFIG COMPONENTS SDL3-shared)
+endif()
+if(SDL3_FOUND)
+	add_library(sdl3main STATIC sdl3main.c)
+	target_link_libraries(sdl3main PUBLIC SDL3::SDL3)
+	target_include_directories(sdl3main PUBLIC ${PROJECT_SOURCE_DIR})
+endif()
+
+# voxlap library
+add_library(voxlap STATIC voxlap5.c v5.asm)
+set_source_files_properties(voxlap5.c PROPERTIES LANGUAGE CXX)
+# warning C4838: conversion from 'unsigned __int64' to 'const __int64' requires a narrowing conversion
+target_compile_options(voxlap PRIVATE $<$<NOT:$<COMPILE_LANGUAGE:ASM_MASM>>:/wd4838>)
+
+# subprojects
 add_subdirectory(genland)
 add_subdirectory(slab6)

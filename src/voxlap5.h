@@ -60,15 +60,15 @@ typedef struct vx5sprite
 	long flags; //flags bit 0:0=use normal shading, 1=disable normal shading
 					//flags bit 1:0=points to kv6data, 1=points to kfatype
 					//flags bit 2:0=normal, 1=invisible sprite
-	static union { point3d s, x; }; //kv6data.xsiz direction in VXL coordinates
-	static union
+	union { point3d s, x; }; //kv6data.xsiz direction in VXL coordinates
+	union
 	{
 		kv6data *voxnum; //pointer to KV6 voxel data (bit 1 of flags = 0)
 		kfatype *kfaptr; //pointer to KFA animation  (bit 1 of flags = 1)
 	};
-	static union { point3d h, y; }; //kv6data.ysiz direction in VXL coordinates
+	union { point3d h, y; }; //kv6data.ysiz direction in VXL coordinates
 	long kfatim;        //time (in milliseconds) of KFA animation
-	static union { point3d f, z; }; //kv6data.zsiz direction in VXL coordinates
+	union { point3d f, z; }; //kv6data.zsiz direction in VXL coordinates
 	long okfatim;       //make vx5sprite exactly 64 bytes :)
 } vx5sprite;
 
