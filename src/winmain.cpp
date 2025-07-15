@@ -2749,11 +2749,6 @@ void readmouse (float *fmousx, float *fmousy, float *fmousz, long *bstatus)
 	mougoaly += (float)mousy; (*fmousy) = mougoaly*f; mougoaly -= (*fmousy);
 	mougoalz += (float)mousz; (*fmousz) = mougoalz*f; mougoalz -= (*fmousz);
 }
-void readmouse (float *fmousx, float *fmousy, long *bstatus)
-{
-	float fmousz;
-	readmouse(fmousx,fmousy,&fmousz,bstatus);
-}
 
 void smartsleep (long timeoutms)
 {
