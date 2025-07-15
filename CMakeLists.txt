@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(voxlap LANGUAGES C CXX)
+project(voxlap LANGUAGES C CXX ASM_MASM)
 
 option(VOXLAP_USE_ASAN "Use Address Sanitizer" OFF)
 

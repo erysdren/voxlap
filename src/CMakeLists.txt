@@ -14,6 +14,7 @@ endif()
 
 if(WIN32 OR MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	add_library(winmain STATIC winmain.cpp)
+	target_link_directories(winmain PUBLIC ${PROJECT_SOURCE_DIR}/ext/dx8/lib/)
 	target_link_libraries(winmain PUBLIC ddraw dinput dxguid)
 	target_include_directories(winmain PUBLIC ${PROJECT_SOURCE_DIR})
 	if(MSVC)

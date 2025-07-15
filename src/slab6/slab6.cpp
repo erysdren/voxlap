@@ -86,13 +86,15 @@ License for this code:
 	//      "air" area under the cursor using "F" in the slice editor.
 
 #include <stdio.h>
+#include <io.h>
 #include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <sys\types.h>
+#include <sys\stat.h>
 #include <math.h>
+#include <direct.h>
 #include "sysmain.h"
 
-#include <SDL3/SDL.h>
+#define OPTIMIZEFOR 6
 
 #include <stdlib.h>
 #include <malloc.h>
@@ -258,46 +260,91 @@ static long keyrepeat (long scancode)
 //│ 11 = 0         (c) │ 11 = 64-bit    (3) │
 //└────────────────────┴────────────────────┘
 
+long fpumode;
+long fstcw ();
+#ifdef _MSC_VER
+
+#if (OPTIMIZEFOR == 6)
+
 	//Better for Pentium Pros (with Fastvid)
-static inline void clearbufbyte (void *d, long c, long a)
+static _inline void clearbufbyte (void *d, long c, long a)
 {
-	__asm__ __volatile__ (
-		"movl $0, %%edi\n\t"
-		"movl $1, %%ecx\n\t"
-		"movl $2, %%eax\n\t"
-		"test %%ecx, %%ecx\n\t"
-		"js short skipit\n\t"
-		"rep stosb\n\t"
-		"skipit:"
-		: : "c" (d), "c" (c), "c" (a) : "edi", "ecx", "eax", "cc", "memory");
+	_asm
+	{
+		mov edi, d
+		mov ecx, c
+		mov eax, a
+		test ecx, ecx
+		js short skipit
+		rep stosb
+skipit:
+	}
 }
 
-static inline long fstcw ()
+#else
+
+	//Better for Pentiums
+static _inline void clearbufbyte (void *d, long c, long a)
+{
+	_asm
+	{
+		mov edi, d
+		mov ecx, c
+		mov eax, a
+		lea ecx, [edi+edi*2]
+		and ecx, 3
+		sub edx, ecx
+		jle short skip1
+		rep stosb
+		mov ecx, edx
+		and edx, 3
+		shr ecx, 2
+		rep stosd
+skip1: add ecx, edx
+		jl short skip2
+		rep stosb
+skip2:
+	}
+}
+
+#endif
+
+static _inline long fstcw ()
 {
 	long fpumode;
-	__asm__ __volatile__ (
-		"fstcw $0\n\t"
-		: "=r" (fpumode));
+	_asm fstcw fpumode
 	return(fpumode);
 }
 
-static inline void fldcw (long fpumode)
+static _inline void fldcw (long fpumode)
 {
-	__asm__ __volatile__ (
-		"fldcw $0\n\t"
-		: : "c" (fpumode));
+	_asm fldcw fpumode
 }
 
-static inline void ftol (float f, long *a)
+static _inline void ftol (float f, long *a)
 {
-	*a = (long)f;
+	_asm
+	{
+		mov eax, a
+		fld f
+		fistp dword ptr [eax]
+	}
 }
 
-static inline void fcossin (float a, float *c, float *s)
+static _inline void fcossin (float a, float *c, float *s)
 {
-	*c = SDL_cosf(a);
-	*s = SDL_sinf(a);
+	_asm
+	{
+		fld a
+		fsincos
+		mov eax, c
+		fstp dword ptr [eax]
+		mov eax, s
+		fstp dword ptr [eax]
+	}
 }
+
+#endif
 
 #define LOGFSQSIZ 10
 long fsqlookup[1<<LOGFSQSIZ];
@@ -333,7 +380,9 @@ void initfrecipasm ()
 #define frecipasm(i,o)\
 	((*(long *)o) = freciplookup[((*(long *)i)&0x007fffff)>>(23-LOGFRECIPSIZ)]-(*(long *)i))
 
-static inline void qinterpolatedown16 (long *a, long c, long d, long s)
+#ifdef _MSC_VER
+
+static _inline void qinterpolatedown16 (long *a, long c, long d, long s)
 {
 	_asm
 	{
@@ -362,7 +411,7 @@ skipbegqcalc2:
 	}
 }
 
-static inline void qinterpolatehiadd16 (long *a, long c, long d, long s)
+static _inline void qinterpolatehiadd16 (long *a, long c, long d, long s)
 {
 	_asm
 	{
@@ -391,8 +440,10 @@ skipbegqcalc2:
 	}
 }
 
+#endif
+
 	//NOTE: font is stored vertically first! (like .ART files)
-static const int64_t font6x8[] = //256 DOS chars, from: DOSAPP.FON (tab blank)
+static const __int64 font6x8[] = //256 DOS chars, from: DOSAPP.FON (tab blank)
 {
 	0x3E00000000000000,0x6F6B3E003E455145,0x1C3E7C3E1C003E6B,0x3000183C7E3C1800,
 	0x7E5C180030367F36,0x000018180000185C,0x0000FFFFE7E7FFFF,0xDBDBC3FF00000000,
@@ -451,7 +502,7 @@ static void print6x8 (long ox, long y, long fcol, long bcol, const char *fmt, ..
 
 	if (!fmt) return;
 	va_start(arglist,fmt);
-	if (vsnprintf((char *)&st,sizeof(st)-1,fmt,arglist)) st[sizeof(st)-1] = 0;
+	if (_vsnprintf((char *)&st,sizeof(st)-1,fmt,arglist)) st[sizeof(st)-1] = 0;
 	va_end(arglist);
 
 	cp = (char *)(y*gdd.p+gdd.f);
@@ -479,7 +530,8 @@ typedef struct
 } equivectyp;
 static equivectyp equivec;
 
-static inline long dmulshr0 (long a, long d, long s, long t)
+#ifdef _MSC_VER
+static _inline long dmulshr0 (long a, long d, long s, long t)
 {
 	_asm
 	{
@@ -491,6 +543,7 @@ static inline long dmulshr0 (long a, long d, long s, long t)
 		add eax, ecx
 	}
 }
+#endif
 
 void equiind2vec (long i, float *x, float *y, float *z)
 {
@@ -1283,37 +1336,46 @@ void rendercube ()
 	fldcw(ofpumode); //restore fpumode to value at beginning of function
 }
 
-static inline long testflag (long c)
+#ifdef _MSC_VER
+static _inline long testflag (long c)
 {
-	long a;
-	__asm__ __volatile__ (
-		"pushf\n\t"
-		"popl %%eax\n\t"
-		"movl %%eax, %%ebx\n\t"
-		"xorl %%ecx, %%eax\n\t"
-		"pushl %%eax\n\t"
-		"popf\n\t"
-		"pushf\n\t"
-		"popl %%eax\n\t"
-		"xorl %%ebx, %%eax\n\t"
-		"movl $1, %%eax\n\t"
-		"jne 0f\n\t"
-		"xorl %%eax, %%eax\n\t"
-		"0:"
-		: "=a" (a) : "c" (c) : "ebx","cc" );
-	return a;
+	_asm
+	{
+		mov ecx, c
+		pushfd
+		pop eax
+		mov edx, eax
+		xor eax, ecx
+		push eax
+		popfd
+		pushfd
+		pop eax
+		xor eax, edx
+		mov eax, 1
+		jne menostinx
+		xor eax, eax
+		menostinx:
+	}
 }
 
-static inline void cpuid (long a, long *s)
+static _inline void cpuid (long a, long *s)
 {
-	__asm__ __volatile__ (
-		"cpuid\n\t"
-		"movl %%eax, (%%esi)\n\t"
-		"movl %%ebx, 4(%%esi)\n\t"
-		"movl %%ecx, 8(%%esi)\n\t"
-		"movl %%edx, 12(%%esi)"
-		: "+a" (a) : "S" (s) : "ebx","ecx","edx","memory","cc");
+	_asm
+	{
+		push ebx
+		push esi
+		mov eax, a
+		cpuid
+		mov esi, s
+		mov dword ptr [esi+0], eax
+		mov dword ptr [esi+4], ebx
+		mov dword ptr [esi+8], ecx
+		mov dword ptr [esi+12], edx
+		pop esi
+		pop ebx
+	}
 }
+#endif
 
 static long gotsse = 0;
 long checksse ()  //Returns 1 if you have >= Pentium III, otherwise 0
@@ -1361,7 +1423,8 @@ char ptfaces16[43][8] =
 }
 #endif
 
-static inline void movps (point4d *dest, point4d *src)
+#ifdef _MSC_VER
+static _inline void movps (point4d *dest, point4d *src)
 {
 	_asm
 	{
@@ -1372,7 +1435,7 @@ static inline void movps (point4d *dest, point4d *src)
 	}
 }
 
-static inline void intss (point4d *dest, long src)
+static _inline void intss (point4d *dest, long src)
 {
 	_asm
 	{
@@ -1384,7 +1447,7 @@ static inline void intss (point4d *dest, long src)
 	}
 }
 
-static inline void addps (point4d *sum, point4d *a, point4d *b)
+static _inline void addps (point4d *sum, point4d *a, point4d *b)
 {
 	_asm
 	{
@@ -1398,7 +1461,7 @@ static inline void addps (point4d *sum, point4d *a, point4d *b)
 	}
 }
 
-static inline void mulps (point4d *sum, point4d *a, point4d *b)
+static _inline void mulps (point4d *sum, point4d *a, point4d *b)
 {
 	_asm
 	{
@@ -1412,7 +1475,7 @@ static inline void mulps (point4d *sum, point4d *a, point4d *b)
 	}
 }
 
-static inline void subps (point4d *sum, point4d *a, point4d *b)
+static _inline void subps (point4d *sum, point4d *a, point4d *b)
 {
 	_asm
 	{
@@ -1426,8 +1489,7 @@ static inline void subps (point4d *sum, point4d *a, point4d *b)
 	}
 }
 
-#if 0
-static inline void emms ()
+static _inline void emms ()
 {
 	_asm emms
 }
@@ -1594,7 +1656,7 @@ void renderboundcubep3 ()
 			subps(r0,r0,&cadd4[4]);
 		}
 	}
-	// emms();
+	emms();
 
 		//Ugly hack to avoid hz multiplies!
 	//irig = oirig;
@@ -2447,8 +2509,10 @@ void calcalldir () //Refresh all .dir's
 typedef struct { char x, y, z0, z1; } cpoint4d;
 static cpoint4d fbuf[FILLBUFSIZ];
 
-static inline long bsf (long a) { __asm__ __volatile__ ( "bsf $0, eax\n\t" : : "c" (a) ); }
-static inline long bsr (long a) { __asm__ __volatile__ ( "bsr $0, eax\n\t" : : "c" (a) ); }
+#ifdef _MSC_VER
+static _inline long bsf (long a) { _asm bsf eax, a }
+static _inline long bsr (long a) { _asm bsr eax, a }
+#endif
 
 long dntil0 (long xy, long z)
 {
