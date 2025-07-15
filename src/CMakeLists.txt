@@ -1,10 +1,27 @@
 project(src)
 
-find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
+if(EMSCRIPTEN OR WIN32 OR MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	find_package(SDL3 CONFIG COMPONENTS SDL3-static)
+else()
+	find_package(SDL3 CONFIG COMPONENTS SDL3-shared)
+endif()
 
-add_library(sdl3main STATIC sdl3main.c)
-target_link_libraries(sdl3main PUBLIC SDL3::SDL3)
-target_include_directories(sdl3main PUBLIC ${PROJECT_SOURCE_DIR})
+if(SDL3_FOUND)
+	add_library(sdl3main STATIC sdl3main.c)
+	target_link_libraries(sdl3main PUBLIC SDL3::SDL3)
+	target_include_directories(sdl3main PUBLIC ${PROJECT_SOURCE_DIR})
+endif()
+
+if(WIN32 OR MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	add_library(winmain STATIC winmain.cpp)
+	target_link_libraries(winmain PUBLIC ddraw dinput dxguid)
+	target_include_directories(winmain PUBLIC ${PROJECT_SOURCE_DIR})
+	if(MSVC)
+		# warning C4644: usage of the macro-based offsetof pattern in constant expressions is non-standard
+		# warning C4838: conversion from 'int' to 'char' requires a narrowing conversion
+		target_compile_options(winmain PRIVATE /wd4644 /wd4838)
+	endif()
+endif()
 
 add_subdirectory(genland)
 add_subdirectory(slab6)
