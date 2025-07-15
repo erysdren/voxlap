@@ -1,9 +1,9 @@
 project(slab6)
 
-add_executable(slab6 WIN32 slab6.cpp)
+add_executable(slab6 WIN32 slab6.c s6.asm)
+set_source_files_properties(slab6.c PROPERTIES LANGUAGE CXX)
 if(WIN32 OR MSVC OR CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	target_sources(slab6 PRIVATE slab6.rc)
-	target_sources(slab6 PRIVATE s6.asm)
 	target_link_libraries(slab6 PRIVATE winmain)
 	target_link_directories(slab6 PUBLIC ${CMAKE_SOURCE_DIR}/ext/dx8/lib/)
 	target_link_libraries(slab6 PUBLIC ddraw dinput dxguid)
