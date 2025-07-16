@@ -25,6 +25,12 @@ if(SDL3_FOUND)
 	target_include_directories(sdl3main PUBLIC ${PROJECT_SOURCE_DIR})
 endif()
 
+# ken's picture library
+add_library(kplib STATIC kplib.c)
+set_source_files_properties(kplib.c PROPERTIES LANGUAGE CXX)
+# warning C4838: conversion from 'unsigned __int64' to 'const __int64' requires a narrowing conversion
+target_compile_options(kplib PRIVATE $<$<NOT:$<COMPILE_LANGUAGE:ASM_MASM>>:/wd4838>)
+
 # voxlap library
 add_library(voxlap STATIC voxlap5.c v5.asm)
 set_source_files_properties(voxlap5.c PROPERTIES LANGUAGE CXX)
