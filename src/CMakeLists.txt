@@ -39,4 +39,5 @@ target_compile_options(voxlap PRIVATE $<$<NOT:$<COMPILE_LANGUAGE:ASM_MASM>>:/wd4
 
 # subprojects
 add_subdirectory(genland)
+add_subdirectory(kv62stl)
 add_subdirectory(slab6)

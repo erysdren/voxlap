@@ -5,7 +5,9 @@ kv62stl.exe: kv62stl.c; cl kv62stl.c /Ox /G6Fy /MD /link /opt:nowin98
 #endif
 
 #include <stdlib.h>
+#include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 int main (int argc, char **argv)
 {
@@ -74,9 +76,9 @@ int main (int argc, char **argv)
 		printf("%s already exists. Overwrite? (y/n)\n",buf);
 		do
 		{
-			i = getch();
+			i = getc(stdin);
 			if ((i == 27) || (i == 'N') || (i == 'n')) { printf("Operation cancelled.\n"); return(1); }
-			if ((i == 0) || (i == 0xe0)) i = getch();
+			if ((i == 0) || (i == 0xe0)) i = getc(stdin);
 		} while ((i != 'Y') && (i != 'y'));
 	}
 	fil = fopen(buf,"wb"); if (!fil) { printf("Couldn't write %s",buf); return(1); }
